@@ -1,0 +1,142 @@
+
+{
+   "controller": {
+   },
+   "workers": [
+      {
+         "type": "router",
+         "options": {
+            "pythonpath": [".."]
+         },
+         "realms": [
+            {
+               "name": "coffee",
+               "roles": [
+                  {
+                     "name": "anonymous",
+                     "permissions": [
+                        {
+                           "uri": "*",
+                           "publish": true,
+                           "subscribe": true,
+                           "call": true,
+                           "register": true
+                        }
+                     ]
+                  }
+               ]
+            }
+         ],
+         "transports": [
+            {
+               "type": "web",
+               "endpoint": {
+                  "type": "tcp",
+                  "port": 9015
+               },
+               "paths": {
+                  "/": {
+                     "type": "static",
+                     "directory": "../coffee/web"
+                  },
+                  "ws": {
+                     "type": "websocket"
+                  }
+               }
+            }
+         ]
+      },
+      {
+         "type": "container",
+         "options": {
+            "pythonpath": [".."]
+         },
+         "components": [
+            {
+               "type": "class",
+               "classname": "coffee.coffee.CoffeeLevelMonitorSession",
+               "realm": "coffee",
+               "transport": {
+                  "type": "websocket",
+                  "endpoint": {
+                     "type": "tcp",
+                     "host": "courier.makeandbuildatl.com",
+                     "port": 9015
+                  },
+                  "url": "ws://courier.makeandbuildatl.com:9015/ws"
+               }
+            },
+            {
+                "type": "class",
+                "classname": "analytics.WeightFileLogger.WeightFileLoggerSession",
+                "realm": "coffee",
+                "transport": {
+                    "type": "websocket",
+                    "endpoint": {
+                        "type": "tcp",
+                        "host": "courier.makeandbuildatl.com",
+                        "port": 9015
+                    },
+                    "url": "ws://courier.makeandbuildatl.com:9015/ws"
+                }
+            },
+            {
+                "type": "class",
+                "classname": "analytics.AnalyticsComponent.AnalyticsSession",
+                "realm": "coffee",
+                "transport": {
+                    "type": "websocket",
+                    "endpoint": {
+                        "type": "tcp",
+                        "host": "courier.makeandbuildatl.com",
+                        "port": 9015
+                    },
+                    "url": "ws://courier.makeandbuildatl.com:9015/ws"
+                }
+            },
+            {
+                "type": "class",
+                "classname": "coffee.CoffeeFreshnessComponent.CoffeeFreshnessSession",
+                "realm": "coffee",
+                "transport": {
+                    "type": "websocket",
+                    "endpoint": {
+                        "type": "tcp",
+                        "host": "courier.makeandbuildatl.com",
+                        "port": 9015
+                    },
+                    "url": "ws://courier.makeandbuildatl.com:9015/ws"
+                }
+            },
+            {
+                "type": "class",
+                "classname": "coffee.BrewingReminderComponent.BrewingReminderSession",
+                "realm": "coffee",
+                "transport": {
+                    "type": "websocket",
+                    "endpoint": {
+                        "type": "tcp",
+                        "host": "courier.makeandbuildatl.com",
+                        "port": 9015
+                    },
+                    "url": "ws://courier.makeandbuildatl.com:9015/ws"
+                }
+            },
+            {
+                "type": "class",
+                "classname": "coffee.BaristaComponent.BaristaSession",
+                "realm": "coffee",
+                "transport": {
+                    "type": "websocket",
+                    "endpoint": {
+                        "type": "tcp",
+                        "host": "courier.makeandbuildatl.com",
+                        "port": 9015
+                    },
+                    "url": "ws://courier.makeandbuildatl.com:9015/ws"
+                }
+            }
+         ]
+      }
+   ]
+}

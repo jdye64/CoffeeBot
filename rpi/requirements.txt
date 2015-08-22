@@ -1,0 +1,8 @@
+PyBluez==0.20
+futures==2.1.6
+requests==2.3.0
+requests-futures==0.9.4
+pyusb
+autobahn
+twisted
+jsonpickle

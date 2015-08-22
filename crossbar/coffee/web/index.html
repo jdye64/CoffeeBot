@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge" />
+	<title>M&B Coffee Monitor</title>
+	<style>
+		html {
+			height:100%;
+		}
+		body {
+			background-color: #FFFFFF;
+			margin:0;
+			height:100%;
+		}
+	</style>
+
+	<!-- copy these lines to your document head: -->
+
+	<meta name="viewport" content="user-scalable=yes, width=918" />
+
+
+	<!-- end copy -->
+
+  </head>
+   <body>
+      <h1>MakeAndBuild Coffee Monitor</h1>
+      <p><b>Please bug someone who doesn't suck at UX to design me so I don't look so sad =(</b></p>
+      <p><b>Current Scale Weight: </b></p>
+      <p id="current_weight">0.0</p>
+      <p><b>Last Weigh in Timestamp: </b></p>
+      <p id="timestamp"></p>
+      <p><b>People Near Coffee Bot: </b></p>
+      <ul id="nearby_people"></ul>
+      <script>AUTOBAHN_DEBUG = true;</script>
+      <script src="autobahn.min.js"></script>
+      <script src="jquery-2.1.1.min.js"></script>
+
+      <script>
+
+        $(document).ready(function(){
+            $("#current_weight").html("I am not working right now because the Raspberry PI isn't actually turned on");
+        });
+
+         // the URL of the WAMP Router (Crossbar.io)
+         //
+         var wsuri;
+         if (document.location.origin == "file://") {
+            wsuri = "ws://courier.makeandbuildatl.com:9015/ws";
+
+         } else {
+            wsuri = (document.location.protocol === "http:" ? "ws:" : "wss:") + "//" +
+                        document.location.host + "/ws";
+         }
+
+
+         // the WAMP connection to the Router
+         //
+         var connection = new autobahn.Connection({
+            url: wsuri,
+            realm: "coffee"
+         });
+
+         // fired when connection is established and session attached
+         //
+         connection.onopen = function (session, details) {
+
+            console.log("Connected");
+
+            //Subscribe to the list of iBeacons discovered next to CoffeeBot
+            function nearby(args) {
+                var beacons = jQuery.parseJSON(args[0]);
+
+                //Clear the un ordered list of all of the existing beacons near the coffee pot
+                $("#nearby_people").empty();
+
+                //Add the new beacons to the list
+                for (var i = 0; i < beacons.length; i++) {
+                    var json = beacons[i];
+                    $("#nearby_people").append("<li>" + json["owner"] + "</li>");
+                }
+            }
+
+            session.subscribe('com.makeandbuild.coffee.ibeacons', nearby).then(
+                function(sub) {
+                    console.log('Subscribed to coffee ibeacons');
+                },
+                function(err) {
+                    console.log('failed to subscribe to coffee ibeacons');
+                }
+            );
+
+
+            //Empty weight is =~ 56.7 oz - Full =~ 137.4 oz
+            function read_weight (args) {
+               var weight = args[0];
+               $("#current_weight").text(weight["raw_weight"] + " " + weight["measurement_unit"] + " % Full: " + weight["predict_percentage_full"]);
+               $("#timestamp").text(new Date((weight["timestamp"] * 1000)) + " Scale Read Every: " + weight["scale_read_interval_sec"] + " seconds");
+            }
+            session.subscribe('com.makeandbuild.coffee.weight', read_weight).then(
+               function (sub) {
+                  console.log('subscribed to topic');
+               },
+               function (err) {
+                  console.log('failed to subscribe to topic', err);
+               }
+            );
+         };
+
+
+         // fired when connection was lost (or could not be established)
+         //
+         connection.onclose = function (reason, details) {
+            console.log("Connection lost: " + reason);
+         }
+
+
+         // now actually open the connection
+         //
+         connection.open();
+
+      </script>
+
+        <!-- Used for the coffee animation -->
+       <div style ="margin:auto;width:918px;height:833px">
+           <div id="cofeeanimation_hype_container" style="position:relative;overflow:hidden;width:918px;height:833px;">
+                <script type="text/javascript" charset="utf-8" src="Cofee_Animation.hyperesources/cofeeanimation_hype_generated_script.js?29612"></script>
+           </div>
+	   </div>
+	   <div style="display:none"></div>
+
+   </body>
+</html>
